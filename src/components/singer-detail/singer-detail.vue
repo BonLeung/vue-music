@@ -1,11 +1,15 @@
 <template lang="html">
   <transition name="slide">
-    <div class="singer-detail"></div>
+    <music-list></music-list>
   </transition>
 </template>
 
 <script>
+import MusicList from 'components/music-list/music-list'
 export default {
+  components: {
+    MusicList
+  }
 }
 </script>
 
