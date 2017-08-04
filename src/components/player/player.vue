@@ -79,13 +79,13 @@ export default {
     open() {
       this.setFullScreen(true)
     },
-    enter() {
+    enter(el, done) {
 
     },
     afterEnter() {
 
     },
-    leave() {
+    leave(el, done) {
 
     },
     afterLeave() {
