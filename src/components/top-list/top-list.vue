@@ -7,7 +7,7 @@
 <script>
 import MusicList from 'components/music-list/music-list'
 import { mapGetters } from 'vuex'
-import { getSongList } from 'api/recommend'
+import { getMusicList } from 'api/rank'
 import { ERR_OK } from 'api/config'
 import { createSong } from 'common/js/song'
 
@@ -19,33 +19,37 @@ export default {
   },
   computed: {
     title() {
-      return this.disc.dissname
+      return this.topList.topTitle
     },
     bgImage() {
-      return this.disc.imgurl
+      if (this.songs.length) {
+        return this.songs[0].image
+      }
+      return ''
     },
     ...mapGetters([
-      'disc'
+      'topList'
     ])
   },
   created() {
-    this._getSongList()
+    this._getMusicList()
   },
   methods: {
-    _getSongList() {
-      if (!this.disc.dissid) {
-        this.$router.push('/recommend')
+    _getMusicList() {
+      if (!this.topList.id) {
+        this.$router.push('/rank')
         return
       }
-      getSongList(this.disc.dissid).then((res) => {
+      getMusicList(this.topList.id).then((res) => {
         if (res.code === ERR_OK) {
-          this.songs = this._normalizeSongs(res.cdlist[0].songlist)
+          this.songs = this._normalizeSongs(res.songlist)
         }
       })
     },
     _normalizeSongs(list) {
       let ret = []
-      list.forEach((musicData) => {
+      list.forEach((item) => {
+        const musicData = item.data
         if (musicData.songid && musicData.albumid) {
           ret.push(createSong(musicData))
         }
@@ -61,8 +65,9 @@ export default {
 
 <style lang="stylus" rel="stylesheet/stylus">
   .slide-enter-active, .slide-leave-active
-    transition: all 0.3s;
+    transition: all 0.3s ease;
 
   .slide-enter, .slide-leave-to
     transform: translate3d(100%, 0, 0);
+
 </style>
