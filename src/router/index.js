@@ -43,6 +43,6 @@ export default new Router({
     ]
   }, {
     path: '/search',
-    Component: Search
+    component: Search
   }]
 })
