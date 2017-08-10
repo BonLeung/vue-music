@@ -1,5 +1,6 @@
 <template lang="html">
-  <scroll class="suggest" :data="result" :pullup="pullup" @scrollToEnd="searchMore" ref="suggest">
+  <scroll class="suggest" :data="result" :pullup="pullup" :beforeScroll="beforeScroll"
+    @scrollToEnd="searchMore" @beforeScroll="listScroll" ref="suggest">
     <ul class="suggest-list">
       <li @click="selectItem(item)" class="suggest-item" v-for="item in result">
         <div class="icon">
@@ -11,12 +12,16 @@
       </li>
       <loading v-show="hasMore"></loading>
     </ul>
+    <div v-show="!hasMore && !result.length" class="no-result-wrapper">
+      <no-result title="抱歉，暂无搜索结果"></no-result>
+    </div>
   </scroll>
 </template>
 
 <script>
 import Scroll from 'base/scroll/scroll'
 import Loading from 'base/loading/loading'
+import NoResult from 'base/no-result/no-result'
 import { search } from 'api/search'
 import { ERR_OK } from 'api/config'
 import { createSong } from 'common/js/song'
@@ -42,7 +47,8 @@ export default {
       page: 1,
       result: [],
       pullup: true,
-      hasMore: true
+      hasMore: true,
+      beforeScroll: true
     }
   },
   methods: {
@@ -59,6 +65,7 @@ export default {
       } else {
         this.insertSong(item)
       }
+      this.$emit('select')
     },
     getDisplayName(item) {
       if (item.type === TYPE_SINGER) {
@@ -96,6 +103,9 @@ export default {
           this._checkMore(res.data)
         }
       })
+    },
+    listScroll() {
+      this.$emit('listScroll')
     },
     _checkMore(data) {
       const song = data.song
@@ -136,7 +146,8 @@ export default {
   },
   components: {
     Scroll,
-    Loading
+    Loading,
+    NoResult
   }
 }
 </script>
@@ -171,5 +182,5 @@ export default {
     position: absolute;
     width: 100%;
     top: 50%;
-    transform: tranlate3d(-50%);
+    transform: translate3d(0, -50%, 0);
 </style>
