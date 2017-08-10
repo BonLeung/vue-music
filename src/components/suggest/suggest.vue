@@ -1,7 +1,7 @@
 <template lang="html">
   <scroll class="suggest" :data="result" :pullup="pullup" @scrollToEnd="searchMore" ref="suggest">
     <ul class="suggest-list">
-      <li class="suggest-item" v-for="item in result">
+      <li @click="selectItem(item)" class="suggest-item" v-for="item in result">
         <div class="icon">
           <i :class="getIconCls(item)"></i>
         </div>
@@ -20,6 +20,8 @@ import Loading from 'base/loading/loading'
 import { search } from 'api/search'
 import { ERR_OK } from 'api/config'
 import { createSong } from 'common/js/song'
+import Singer from 'common/js/singer'
+import { mapMutations, mapActions } from 'vuex'
 
 const TYPE_SINGER = 'singer'
 const PER_PAGE = 20
@@ -44,6 +46,20 @@ export default {
     }
   },
   methods: {
+    selectItem(item) {
+      if (item.type === TYPE_SINGER) {
+        const singer = new Singer({
+          id: item.singermid,
+          name: item.singername
+        })
+        this.$router.push({
+          path: `/search/${singer.id}`
+        })
+        this.setSinger(singer)
+      } else {
+        this.insertSong(item)
+      }
+    },
     getDisplayName(item) {
       if (item.type === TYPE_SINGER) {
         return item.singername
@@ -105,7 +121,13 @@ export default {
         ret = ret.concat(this._normalizeSongs(data.song.list))
       }
       return ret
-    }
+    },
+    ...mapMutations({
+      setSinger: 'SET_SINGER'
+    }),
+    ...mapActions([
+      'insertSong'
+    ])
   },
   watch: {
     query() {
