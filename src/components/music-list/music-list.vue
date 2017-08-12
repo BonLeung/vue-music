@@ -95,9 +95,7 @@ export default {
       })
     },
     random() {
-      this.randomPlay({
-        list: this.songs
-      })
+      this.randomPlay(this.songs)
     },
     ...mapActions([
       'selectPlay',
