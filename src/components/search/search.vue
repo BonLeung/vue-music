@@ -57,7 +57,6 @@ export default {
   },
   computed: {
     shortcut() {
-      console.log('computed')
       return this.hotKey.concat(this.searchHistory)
     },
     ...mapGetters([
