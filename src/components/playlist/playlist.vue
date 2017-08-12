@@ -4,9 +4,9 @@
       <div class="list-wrapper" @click.stop>
         <div class="list-header">
           <h1 class="title">
-            <i class="icon"></i>
-            <span class="text"></span>
-            <span class="clear">
+            <i class="icon" :class="iconMode" @click="changeMode"></i>
+            <span class="text">{{modeText}}</span>
+            <span class="clear" @click.stop="showConfirm">
               <i class="icon-clear"></i>
             </span>
           </h1>
@@ -26,7 +26,7 @@
           </transition-group>
         </scroll>
         <div class="list-operate">
-          <div class="add">
+          <div class="add" @click="addSong">
             <i class="icon-add"></i>
             <span class="text">添加歌曲到队列</span>
           </div>
@@ -35,28 +35,31 @@
           <span>关闭</span>
         </div>
       </div>
+      <add-song ref="addSong"></add-song>
+      <confirm ref="confirm" @confirm="confirmClear" text="是否清空播放列表" confirmBtnText="清空"></confirm>
     </div>
   </transition>
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapActions } from 'vuex'
+import { mapActions } from 'vuex'
 import { playMode } from 'common/js/config'
 import Scroll from 'base/scroll/scroll'
+import Confirm from 'base/confirm/confirm'
+import AddSong from 'components/add-song/add-song'
+import { playerMixin } from 'common/js/mixin'
 
 export default {
+  mixins: [playerMixin],
   data() {
     return {
       showFlag: false
     }
   },
   computed: {
-    ...mapGetters([
-      'sequenceList',
-      'currentSong',
-      'playList',
-      'mode'
-    ])
+    modeText() {
+      return this.mode === playMode.sequence ? '顺序播放' : this.mode === playMode.random ? '随机播放' : '单曲循环'
+    }
   },
   methods: {
     show() {
@@ -77,8 +80,8 @@ export default {
     },
     selectItem(item, index) {
       if (this.mode === playMode.random) {
-        index = this.playList.findIndex((item) => {
-          return item.id === this.currentSong.id
+        index = this.playList.findIndex((song) => {
+          return song.id === item.id
         })
       }
       this.setCurrentIndex(index)
@@ -96,12 +99,18 @@ export default {
         this.hide()
       }
     },
-    ...mapMutations({
-      setCurrentIndex: 'SET_CURRENT_INDEX',
-      setPlayingState: 'SET_PLAYING_STATE'
-    }),
+    showConfirm() {
+      this.$refs.confirm.show()
+    },
+    confirmClear() {
+      this.deleteSongList()
+    },
+    addSong() {
+      this.$refs.addSong.show()
+    },
     ...mapActions([
-      'deleteSong'
+      'deleteSong',
+      'deleteSongList'
     ])
   },
   watch: {
@@ -115,7 +124,9 @@ export default {
     }
   },
   components: {
-    Scroll
+    Scroll,
+    Confirm,
+    AddSong
   }
 }
 </script>
@@ -168,7 +179,7 @@ export default {
       overflow: hidden;
       .item
         display: flex;
-        align-tiems: center;
+        align-items: center;
         height: 40px;
         padding: 0 30px 0 20px;
         overflow: hidden;
