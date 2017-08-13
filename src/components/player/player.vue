@@ -362,6 +362,7 @@ export default {
       this.$refs.lyricList.$el.style[transitionDuration] = `${time}ms`
       this.$refs.middleL.style.opacity = opacity
       this.$refs.middleL.style[transitionDuration] = `${time}ms`
+      this.touch.initiated = false
     },
     showPlaylist() {
       this.$refs.playlist.show()
